@@ -1,194 +1,131 @@
-# RAG-API
-A Retrieval-Augmented Generation (RAG) API built with FastAPI, FAISS/ChromaDB for vector search, and OpenAI LLM for response generation. Containerized with Docker and deployed on Kubernetes using Minikube.
+# RAG Application with FastAPI, FAISS, and OpenAI
 
+## Overview
+This project is a **Retrieval-Augmented Generation (RAG) API**, which retrieves relevant information from a document store and generates responses using a Large Language Model (LLM). It uses **FastAPI** for the API, **FAISS** or **ChromaDB** for vector storage, and **OpenAI's API** or any open-source LLM for response generation.
 
+## Features
+- Accepts and stores documents for retrieval
+- Uses an embedding model to store and search for relevant documents
+- Queries stored documents and generates responses using an LLM
+- Exposes API endpoints via FastAPI
+- Containerized with Docker and deployed locally using Kubernetes (Minikube)
 
-# 🚀 RAG-API: Retrieval-Augmented Generation with FastAPI & Kubernetes
-
-## 📌 Overview
-**RAG-API** is a **Retrieval-Augmented Generation (RAG)** system that efficiently retrieves relevant information from stored documents and generates responses using a **Large Language Model (LLM)**.  
-
-The project is built using **FastAPI**, **FAISS/ChromaDB** for vector search, and **OpenAI/Hugging Face LLM** for response generation. The API is **containerized with Docker** and deployed locally on **Kubernetes (Minikube)**.
-
----
-
-## 📂 Project Structure
-
+## Project Structure
 ```
-/rag-api
-├── api/                     # API Implementation
+├── api
 │   ├── __init__.py
-│   ├── main.py               # FastAPI app entry point
-│   ├── routers/              # API route handlers
+│   ├── main.py
+│   ├── routers
 │   │   ├── __init__.py
-│   │   ├── ingest.py         # Handles document ingestion
-│   │   ├── query.py          # Handles user queries
+│   │   ├── ingest.py
+│   │   ├── query.py
 │
-├── k8s/                      # Kubernetes Deployment Files
-│   ├── deployment.yaml       # Defines API deployment
-│   ├── service.yaml          # Defines service (NodePort/LoadBalancer)
+├── k8s
+│   ├── deployment.yaml
+│   ├── service.yaml
 │
-├── rag/                      # Retrieval-Augmented Generation (RAG) Pipeline
+├── rag
 │   ├── __init__.py
-│   ├── llm.py                # Handles LLM calls (OpenAI/HuggingFace)
-│   ├── rag_pipeline.py       # Manages RAG workflow (retrieval + response)
-│   ├── vectorstore.py        # Handles FAISS/ChromaDB storage
+│   ├── llm.py
+│   ├── rag_pipeline.py
+│   ├── vectorstore.py
 │
-├── .env.example              # Environment variables template
-├── .gitignore                # Ignore unnecessary files
-├── Dockerfile                # Defines Docker container
-├── deploy.sh                 # Shell script to automate deployment
-├── requirements.txt          # Python dependencies
-└── README.md                 # Documentation
+├── .env.example
+├── .gitignore
+├── deploy.sh
+├── Dockerfile
+├── requirements.txt
+├── README.md
 ```
 
----
+## Setup Instructions
 
-## 🛠️ Tech Stack
-- **Backend:** FastAPI
-- **Vector Storage:** FAISS / ChromaDB
-- **LLM:** OpenAI API / HuggingFace
-- **Containerization:** Docker
-- **Deployment:** Kubernetes (Minikube)
-- **Orchestration:** Shell script for automation
+### 1️⃣ Install Dependencies
+Ensure you have **Python 3.10+**, **uv**, and **Docker** installed. Then, install dependencies:
 
----
-
-## 🔧 Setup & Installation
-
-### 1️⃣ **Clone the Repository**
 ```bash
-git clone https://github.com/your-username/rag-api.git
-cd rag-api
+uv pip install -r requirements.txt
 ```
 
-### 2️⃣ **Create a Virtual Environment**
-```bash
-python -m venv venv
-source venv/bin/activate  # Mac/Linux
-venv\Scripts\activate     # Windows
-```
+### 2️⃣ Configure Environment Variables
+Copy the `.env.example` file to `.env` and insert your OpenAI API key:
 
-### 3️⃣ **Install Dependencies**
-```bash
-pip install -r requirements.txt
-```
-
-### 4️⃣ **Set Up Environment Variables**
-Copy `.env.example` to `.env` and update values:
 ```bash
 cp .env.example .env
 ```
-Modify `.env` with API keys and database details.
-
-### 5️⃣ **Run the API Locally**
-```bash
-uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
+Edit `.env` and add your **OpenAI API key**:
 ```
-The API will be available at **[http://localhost:8000](http://localhost:8000)**.
-
----
-
-## 🚀 API Endpoints
-
-| Method | Endpoint | Description |
-|--------|---------|-------------|
-| `POST` | `/ingest` | Uploads and stores documents for retrieval. |
-| `POST` | `/query` | Accepts a query and returns an LLM-generated response. |
-| `GET`  | `/health` | Checks API health status. |
-
-### 🛠 **Testing API with cURL**
-- **Ingest Documents**
-```bash
-curl -X POST "http://localhost:8000/ingest" -H "Content-Type: application/json" -d '{"text": "Your document content"}'
-```
-- **Query API**
-```bash
-curl -X POST "http://localhost:8000/query" -H "Content-Type: application/json" -d '{"query": "Your question"}'
-```
-- **Health Check**
-```bash
-curl -X GET "http://localhost:8000/health"
+OPENAI_API_KEY=your-api-key-here
 ```
 
----
+### 3️⃣ Run the API Locally
+Run the FastAPI server:
 
-## 🐳 Docker Setup
+```bash
+uvicorn api.main:app --host 0.0.0.0 --port 8000
+```
 
-### 1️⃣ **Build Docker Image**
+OpenAPI docs available at: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+
+## Docker Deployment
+
+### 4️⃣ Build the Docker Image
 ```bash
 docker build -t rag-api .
 ```
 
-### 2️⃣ **Run Docker Container**
+### 5️⃣ Run the Docker Container
 ```bash
 docker run -p 8000:8000 --env-file .env rag-api
 ```
 
----
+## Kubernetes Deployment (Minikube)
 
-## ☸️ Kubernetes Deployment with Minikube
-
-### 1️⃣ **Start Minikube**
+### 6️⃣ Start Minikube
 ```bash
 minikube start
 ```
 
-### 2️⃣ **Apply Kubernetes Manifests**
+### 7️⃣ Deploy the Application
 ```bash
 kubectl apply -f k8s/deployment.yaml
 kubectl apply -f k8s/service.yaml
 ```
 
-### 3️⃣ **Check Pods & Services**
+### 8️⃣ Get API URL
 ```bash
-kubectl get pods
-kubectl get services
+minikube service rag-api-service --url
 ```
 
-### 4️⃣ **Access API in Minikube**
-For **LoadBalancer:**
+## Automate Deployment
+Run the deployment script to automate Docker and Kubernetes setup:
+
 ```bash
-minikube service rag-api-service
+./deploy.sh
 ```
-For **NodePort:**
-```bash
-kubectl port-forward service/rag-api-service 8000:80
-```
-API will be available at **[http://localhost:8000](http://localhost:8000)**.
+
+## API Endpoints
+
+| Method | Endpoint       | Description                  |
+|--------|--------------|------------------------------|
+| POST   | /ingest      | Uploads documents to the vector store |
+| POST   | /query       | Accepts user queries and returns generated responses |
+| GET    | /health      | Health check for API status |
+
+## Technologies Used
+- **FastAPI** – Web framework for API
+- **FAISS / ChromaDB** – Vector storage
+- **OpenAI API** – LLM response generation
+- **Docker** – Containerization
+- **Kubernetes (Minikube)** – Local deployment
+- **uvicorn** – ASGI server for FastAPI
+
+## Future Improvements
+- Implement authentication for API endpoints
+- Support for additional LLM providers (e.g., Hugging Face)
+- Optimize FAISS indexing for better performance
+
+## License
+This project is licensed under the MIT License.
 
 ---
-
-## 📊 Future Improvements
-✅ Support multiple document formats (PDF, DOCX).  
-✅ Add Redis caching for query responses.  
-✅ Improve scalability with auto-scaling in Kubernetes.  
-
----
-
-## 👨‍💻 Contributing
-1. **Fork the repo**
-2. **Create a new branch** (`feature-xyz`)
-3. **Commit changes** (`git commit -m "Add feature XYZ"`)
-4. **Push to GitHub** (`git push origin feature-xyz`)
-5. **Open a Pull Request**
-
----
-
-## 📜 License
-This project is licensed under the **MIT License**.
-
----
-
-## 🙌 Acknowledgments
-Special thanks to **OpenAI**, **FAISS**, **HuggingFace**, and the **FastAPI** community.
-
----
-
-🔗 **GitHub Repository**: [your-github-link](https://github.com/your-username/rag-api)
-
-
-
-
-
-
